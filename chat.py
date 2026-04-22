@@ -13,12 +13,14 @@ async def main(page: ft.Page):
     page.window.icon = f"{cwd}/images/icon.ico"
     await page.window.center()
 
+    page.theme = ft.Theme(color_scheme=ft.ColorScheme(primary=ft.Colors.RED,secondary=ft.Colors.WHITE))
+
     # Состояние приложения
     model_loaded = False
 
     def create_loading_view():
         status = ft.Text("Загрузка модели", size=20, weight=ft.FontWeight.BOLD)
-        progress = ft.ProgressBar(width=300)
+        progress = ft.ProgressBar(width=300,color=ft.Colors.WHITE)
         dots = ft.Text("", size=18)
         return ft.Column(
             [
@@ -69,12 +71,15 @@ async def main(page: ft.Page):
     # Заменяем экран загрузки на чат
     page.controls.clear()
     page.add(await create_chat_view(page))
-    page.update()
+    page.update() 
 
 async def create_chat_view(page: ft.Page):
     """Создаёт интерфейс чата."""
+    cwd = os.getcwd()
     page.window.width = 1000
     page.window.height = 800
+    page.padding = 0
+
     message_list = []
     chat_box = ft.Column(
         controls=message_list,
@@ -82,6 +87,7 @@ async def create_chat_view(page: ft.Page):
         auto_scroll=True,
         width=1000,
         height=650,
+        expand=True
     )
 
     async def send_message(e):
@@ -90,8 +96,8 @@ async def create_chat_view(page: ft.Page):
             return
         user_message = ft.Container(
             content=ft.Text(value=user_text, size=15),
-            bgcolor=ft.Colors.PINK,
             align=ft.Alignment.TOP_RIGHT,
+            bgcolor=ft.Colors.with_opacity(0.9,"#f90807"),
             border_radius=5,
             padding=10,
         )
@@ -101,19 +107,30 @@ async def create_chat_view(page: ft.Page):
         asyncio.create_task(_generate_bot_response(user_text, message_list, page))
 
     chat_textfield = ft.TextField(
-        label="Введите ваше сообщение", width=920, multiline=True
+        label="Введите ваше сообщение", width=920, multiline=True,bgcolor="#ebebeb",color= ft.Colors.BLACK, border_color=ft.Colors.RED,label_style=ft.TextStyle(color=ft.Colors.RED)
     )
-
-    return ft.Column([
-        chat_box,
-        ft.Row([chat_textfield, ft.IconButton(icon=ft.Icons.SEND, on_click=send_message)]),
-    ])
+    
+    return ft.Container(content=
+        ft.Column([chat_box,
+            ft.Row([chat_textfield,
+                    ft.IconButton(icon=ft.Icons.SEND, 
+                                on_click=send_message,
+                                icon_color=ft.Colors.RED,
+                                hover_color=ft.Colors.WHITE,
+                                bgcolor=ft.Colors.with_opacity(0.8,ft.Colors.WHITE))],)
+        ],
+            expand=True,
+            margin=10
+        ),
+        image=ft.DecorationImage(src=f"{cwd}/images/bg4.jpg",fit=ft.BoxFit.COVER),
+        expand=True
+    )
 
 async def _generate_bot_response(user_text: str, message_list: list, page: ft.Page):
     # Индикатор набора текста
     typing_indicator = ft.Container(
         content=ft.Text(value=".", size=15, weight=ft.FontWeight.BOLD),
-        bgcolor=ft.Colors.BLUE,
+        bgcolor=ft.Colors.with_opacity(0.85,ft.Colors.RED_ACCENT_700),
         align=ft.Alignment.CENTER_LEFT,
         border_radius=15,
         padding=ft.Padding.symmetric(horizontal=20, vertical=10),
@@ -142,8 +159,9 @@ async def _generate_bot_response(user_text: str, message_list: list, page: ft.Pa
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
             auto_follow_links=True,
+            
         ),
-        bgcolor=ft.Colors.BLUE,
+        bgcolor=ft.Colors.with_opacity(0.85,ft.Colors.RED_ACCENT_700),
         align=ft.Alignment.TOP_LEFT,
         border_radius=5,
         padding=10,
