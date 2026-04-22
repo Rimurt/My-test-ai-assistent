@@ -2,7 +2,6 @@ from transformers import pipeline, BitsAndBytesConfig
 import torch
 import os
 
-local_model_path = f"{os.getcwd()}/ai_models/models--Qwen--Qwen3-4B-Instruct-2507/snapshots/cdbee75f17c01a7cc42f958dc650907174af0554"
 _pipe = None           # глобальная переменная для хранения загруженной модели
 _chat_history = []     # история диалога: список {"role": "user/assistant", "content": ...}
 
@@ -16,7 +15,7 @@ def load_model():
     )
     _pipe = pipeline(
         "text-generation",
-        model=local_model_path,
+        model="Qwen/Qwen3-4B-Instruct-2507",
         device_map="auto",
         model_kwargs={"quantization_config": quantization_config},
         dtype=torch.bfloat16,   
