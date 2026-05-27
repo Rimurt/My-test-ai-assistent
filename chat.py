@@ -1,9 +1,8 @@
-# chat.py (обновлённый)
 import flet as ft
 import asyncio
 import threading
 import os
-from modules.ai import load_model, get_pipe, gen_message
+from modules.ai import load_model, generate_response as gen_message
 
 async def main(page: ft.Page):
     cwd = os.getcwd()
